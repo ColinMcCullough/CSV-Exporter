@@ -33,7 +33,7 @@ function numOfBlanks(arryVal,arrylen) {
  *but the list being compared to does not contain
 */ 
 Array.prototype.diff = function(a) {
-    return this.filter(function(i) {return a.indexOf(i) < 0;});
+    return this.filter(i => a.indexOf(i) < 0);
 };
 
 function howManyRepeated(str){

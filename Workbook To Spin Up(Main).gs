@@ -49,7 +49,7 @@ function collectTagResults(propSheetObj, tagToSearch, clientProp,dataValObj)  {
   let rowValues = null;
   //sets default value if searchString matches defaultPrintTags array value
   if(defaultPrintTags.includes(tagToSearch)) { //default values
-    rowValues = defaultValuePrint(propSheetObj.numOfLoc(), tagToSearch, clientProp.domainType);    
+    rowValues = printDefaultValues(propSheetObj.numOfLoc(), tagToSearch, clientProp.domainType);    
   }
   else if(!excludedValueMatch(tagToSearch,clientProp)) { 
     rowValues = getRowValues(propSheetObj, tagToSearch, clientProp,dataValObj);

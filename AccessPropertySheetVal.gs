@@ -48,7 +48,7 @@ class PropertyInfo {
   /* 
   //@param proerty workbook values
   //@param tag to find row values of
-  //@return row values in workbook relevant to tagpropertySheet.getRange(2, 1, propertySheet.getLastRow(),propertySheet.getLastColumn()).getValues();
+  //@return row values in workbook relevant to tagproperty
   */
   getRowValByTag(tag) {
     const result = []
@@ -73,14 +73,6 @@ class PropertyInfo {
   }
 }
 
-function testPropertyInfoClass() {
-  var propSheet = new PropertyInfo();
-  var values = propSheet.propertyValues;
-  var tags = propSheet.propertyTagsArry();
-  var rowIndex = propSheet.getRowIndexByTag('floor_plans');
-  var addressProp = propSheet.getLocAddressProp();
-  Logger.log(addressProp);
-}
 
 //needs to return an array in an array
 //EX: [['west, east, north', 'south, downtown, east']]
@@ -187,6 +179,6 @@ function getAmentiesData(propSheetObj, tag) {
 //@return column values for first column in workbook
 */
 function getColumnOneVal(propertySheetValues) {
-  return propertySheetValues.map(function(v){ return v[0] });
+  return propertySheetValues.map(v => v[0] )
 }
 
