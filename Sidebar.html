@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <!-- Use a templated HTML printing scriptlet to import common stylesheet -->
+  <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+</head>
+
+<body>
+  <!-- Below is the HTML code that defines the sidebar element structure. -->
+  <cursor></cursor>
+  <div class="sidebar branding-below">
+    <img alt="Add-on logo" class="logo" width="35" src="https://drive.google.com/uc?id=1KVJuQ_yX1McPvI6xaHucjzpcd5_m08EA">
+    <div class="container">
+      <section class="left">
+        <div class="block form-group">
+          <label for="select">Client<br>Vertical</label>
+        </div>
+      </section>
+      <section class="center">
+        <div class="block form-group">
+          <label for="select">Domain<br>Strategy</label>
+        </div>
+      </section>
+      <section class="right">
+        <div class="block form-group">
+          <label for="select">Chain<br>Branding?</label>
+        </div>
+      </section>
+      <section class="left2">
+        <div class="block form-group">
+          <select id="select-vertical">
+            <option value="Select" selected>Select</option>
+            <option value="mf">MF</option>
+            <option value="ss">SS</option>
+            <option value="sl">SL</option>
+          </select>
+        </div>
+      </section>
+      <section class="center2">
+        <div class="block form-group">
+          <select id="select-domain-strat" disabled>
+            <option value="Select" selected>Select</option>
+            <option value="multi">Multi</option>
+            <option value="single">Single</option>
+          </select>
+        </div>
+      </section>
+      <section class="right2">
+        <div class="block form-group">
+          <select id="select-chain" disabled>
+            <option value="Select" selected>Select</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </section>
+    </div>
+    <h3 class="text-center">Send WorkBook to Spin Up Tab:</h3>
+    <hr>
+    <div>
+      <div class="block form-group" id="sidebar-value-block">
+        <p> Sends data from the '**Paste Property Info**' tab to the 'spinUpFile' tab</p>
+
+        <div class="block" id="sidebar-button-bar">
+          <button id="sidebar-run-main">Property Info >> Spin Up File</button>
+        </div>
+      </div>
+    </div>
+    <div id="sidebar-status"></div>
+  </div>
+  <!-- Sidebar bottom-branding below. -->
+  <div class="sidebar bottom">
+    <span class="gray branding-text">Spreadsheet Add-on by Colin McCullough
+      <br>
+      <a href="https://sites.google.com/getg5.com/g5wiki/professional-services/seo-implementation/seo-checklist-review"
+        target="_blank">G Sites Help</a>
+      &nbsp; | &nbsp;<a href="https://forms.gle/hJrekqf89US9FLot9" target="_blank">Submit Feedback</a>
+    </span>
+  </div>
+  <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
+  <?!= HtmlService.createHtmlOutputFromFile('SidebarJavaScript').getContent(); ?>
+</body>
+
+</html>

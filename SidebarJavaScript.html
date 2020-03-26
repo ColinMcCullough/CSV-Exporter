@@ -1,0 +1,61 @@
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+  /**
+   * Run initializations on sidebar load.
+   */
+  $(function() {
+    // Assign handler functions to sidebar elements here, if needed.
+    $('#sidebar-run-main').click(spinUpCSV);
+  });
+  
+  // Respond to success conditions here.
+  function success(msg, element) {
+    showStatus('No Errors.');
+    element.disabled = false;
+  }
+  
+  // Respond to failure conditions here.
+  function failure(msg, element) {
+    showStatus(msg, 'error');
+    element.disabled = false;
+  }
+
+  function spinUpCSV() {
+    this.disabled = true;
+    var vertical = $('#select-vertical').val();
+    var domainStrat = $('#select-domain-strat').val();
+    var chainBrand = $('#select-chain').val();  
+    google.script.run
+      .withSuccessHandler(success)
+      .withFailureHandler(failure)
+      .withUserObject(this)
+      .main(vertical,domainStrat,chainBrand);    
+  }
+  
+  /**
+   * Displays the given status message in the sidebar.
+   *
+   * @param {String} msg The status message to display.
+   * @param {String} classId The message type (class id) that the message
+   *   should be displayed as.
+   */
+  function showStatus(msg, classId) {
+    $('#sidebar-status').removeClass().html(msg);
+    if (classId) {
+      $('#sidebar-status').addClass(classId);
+    }
+  }
+/*
+Enable drop downs upon selection for workbook to spinup section
+*/  
+$("select[id='select-vertical']").change( function() {
+    $("select[id='select-domain-strat']").removeAttr("disabled");
+});
+
+$("select[id='select-domain-strat']").change( function() {
+    $("select[id='select-chain']").removeAttr("disabled");
+}); 
+
+    
+</script>
