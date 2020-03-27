@@ -1,10 +1,10 @@
 function testdataval() {
   var clientProp = getClientProp('mf','multi','yes');
   var propSheetObj = new PropertyInfo();
-  var phone = propSheetObj.getRowValByTag('local_phone_number');
+  var phone = propSheetObj.getRowValByTag('nearby_restaurants');
   var dataValChecker = new DataVal(clientProp);
   //var emailArry = dataValChecker.runDataVal('email');
-  var customSlugs = dataValChecker.runDataVal('local_phone_number',phone);
+  var customSlugs = dataValChecker.runDataVal('nearby_restaurants',phone);
   Logger.log(customSlugs);
 
 }
@@ -18,105 +18,103 @@ class DataVal {
     this.domainType = clientProp.domainType
     this.chainBranding = clientProp.chainBranding
   }
-  runDataVal(tag,dataByTag) {
-    this.dataByTag = dataByTag;
-    this.numLocations = dataByTag.length;
-    var cleanedData = [];
-    for(var i = 0; i < this.numLocations;i++) { 
-      var str = this.dataByTag[i].toString().trim();
-      switch(tag) {
-        case "email":
-          str = this.emailVal(str);
-          break;
-        case "custom_slug":
-          str = this.generateSlug(str);
-          break;
-        case "twitter_username": case "facebook_username": case "yelp_username": case "pinterest_username": case "instagram_username": case "youtube_username": case "linkedin_username":
-          str = this.valSocialLinks(str);
-          break;
-        case "local_phone_number": case "display_phone_number":
-          str = this.valPhoneNum(str);
-          break;
-        case "naked_domain":
-          str = this.valDomain(str);
-          break;
-        case "floor_plans":
-          str = this.valFloorPlans(str);
-          break;
-        case "state":
-          str = this.getStateAbb(str);
-          break;
-        case "landmark_1_name": case "nearby_healthcare_1": case "nearby_gasoline": case "nearby_roadway_1": case "nearby_roadway_2": case "community_amenity_1":
-          str = this.extractFirstVal(str);
-          break;
-        case "nearby_restaurants": case "nearby_shopping": case "nearby_employers": case "nearby_schools": case "negative_keywords" :
-          str = this.formatCommaSepList(str);
-          break;
-        default:
-          break;
-      }  
-      cleanedData.push(str);
+  runDataVal(tag, dataByTag) {
+    this.dataByTag = dataByTag
+    this.numLocations = dataByTag.length
+    const cleanedData = []
+    for (let i = 0; i < this.numLocations; i++) {
+      let str = this.dataByTag[i].toString().trim()
+      str = this.validate(str, tag)
+      cleanedData.push(str)
     }
-    return [cleanedData];
+    return [cleanedData]
   }
+  
+  validate(str, tag) {
+    const functionMap = {
+      email: this.emailVal(str),
+      custom_slug: this.generateSlug(str),
+      twitter_username: this.valSocialLinks(str),
+      facebook_username: this.valSocialLinks(str),
+      yelp_username: this.valSocialLinks(str),
+      pinterest_username: this.valSocialLinks(str),
+      instagram_username: this.valSocialLinks(str),
+      youtube_username: this.valSocialLinks(str),
+      linkedin_username: this.valSocialLinks(str),
+      local_phone_number: this.valPhoneNum(str),
+      display_phone_number: this.valPhoneNum(str),
+      naked_domain: this.valDomain(str),
+      floor_plans: this.valFloorPlans(str),
+      state: this.getStateAbb(str),
+      landmark_1_name: this.extractFirstVal(str),
+      nearby_healthcare_1: this.extractFirstVal(str),
+      landmark_1_name: this.extractFirstVal(str),
+      nearby_gasoline: this.extractFirstVal(str),
+      nearby_roadway_1: this.extractFirstVal(str),
+      nearby_roadway_2: this.extractFirstVal(str),
+      community_amenity_1: this.extractFirstVal(str),
+      nearby_restaurants: this.formatCommaSepList(str),
+      nearby_shopping: this.formatCommaSepList(str),
+      nearby_employers: this.formatCommaSepList(str),
+      nearby_schools: this.formatCommaSepList(str),
+      negative_keywords: this.formatCommaSepList(str)
+    }
+    const val = functionMap[tag]
+    return val ? val : str
+  } 
   
   emailVal(str) {
-    var result = "";
-    var regexmatch = str.match(/\b([^\s]+@[^\s]+)\b/)
-    if(str.indexOf("@") != -1 && regexmatch !== null) {
-      result = regexmatch[0];
+    let result = ''
+    const regexmatch = str.match(/\b([^\s]+@[^\s]+)\b/)
+    if (str.includes('@') && regexmatch !== null) {
+      result = regexmatch[0]
     }
-    return result;
+    return result
   }
   
-  generateSlug(str, clientProp) {
-    if(this.chainBranding == "yes") { //address passed in if chain branding and will be formatted
+  generateSlug(str) {
+    if (this.chainBranding === 'yes') { // address passed in if chain branding and will be formatted
       str = str.toString().replace(/[^A-Za-z0-9|" "]/g, '') // replaces all non numeric of alphabetic characters
-      str = str.substr(str.indexOf(' ')+1) // everything after address numbers
-      str = str.toLowerCase().trim().replace(/\s\s+|\s/g, '-')
+        .substr(str.indexOf(' ') + 1) // everything after address numbers
+        .toLowerCase().trim().replace(/\s\s+|\s/g, '-')
+    } else { // this will pass in the brand name to clean for a slug (not chain branded)
+      str = str.toString().toLowerCase().trim().replace(/\s\s+|\s/g, '-')
     }
-    else {  // this will pass in the brand name to clean for a slug (not chain branded)
-      str = str.toString().toLowerCase().trim().replace(/\s\s+|\s/g, '-');
-    }
-    return str;
+    return str
   }
   
   valSocialLinks(str) {
-    if((str) && this.hasSocialLink(str)) {
-      if(str.indexOf("?") != -1) {
-        str = str.substr(0, str.indexOf("?"));
+    if ((str) && this.hasSocialLink(str)) {
+      if (str.includes('?')) {
+        str = str.substr(0, str.indexOf('?'))
       }
-      if(str.substr(str.length - 1) == "/") { //checks if last character in url is trailing slash
-        str = str.substr(0, str.length - 1);
+      if (str.substr(str.length - 1) === '/') { // checks if last character in url is trailing slash
+        str = str.substr(0, str.length - 1)
       }
-      str = str.split("/").pop();
+      str = str.split('/').pop()
     } else {
-      str = "";
+      str = ''
     }
-    return str;
-  } 
+    return str
+  }
   
-  hasSocialLink(str) {    
-    var socialStrings = ["yelp","facebook","twitter","pinterest","instagram","youtube","linkedin"];
-    for(i = 0; i < socialStrings.length; i++) {
-      if(str.indexOf(socialStrings[i]) >= 0) {
-        return true;
+  hasSocialLink(str) {
+    const socialStrings = ['yelp', 'facebook', 'twitter', 'pinterest', 'instagram', 'youtube', 'linkedin']
+    let val = false
+    for (let i = 0; i < socialStrings.length; i++) {
+      if (str.includes(socialStrings[i])) {
+        val = true
+        break
       }
     }
-    return false;
+    return val
   }
   
   valPhoneNum(str) {
-    var fullNumber = "";
-    str = str.toString();
-    str = str.replace(/[^0-9\.]+/g, '').replace(/\./g, '').trim();
-    if(str != "" || str.length === 10) {
-      var areaCode = str.substr(0, 3);
-      var first3 = str.substr(3, 3);
-      var last4 = str.substr(6, 4);
-      var fullNumber = areaCode + '-' + first3 + '-' + last4;
-    }
-    return fullNumber;
+    str = str.toString().replace(/[^0-9\.]+/g, '').replace(/\./g, '').trim();
+    return str != "" && str.length === 10
+      ? `${str.substr(0, 3)}-${str.substr(3, 3)}-${str.substr(6, 4)}`
+      : '';
   }
   
   valDomain(str, clientProp) { 
@@ -158,29 +156,25 @@ class DataVal {
     return stateMap[str]
   }
   
-  formatCommaSepList(val1) {
-    var y = val1.replace(/[^\r\n\w\s|\,\;]/gi, '').trim(); 
-    if(y != "") {
-      if(!this.hasALineBreakComma(y)) {
-        y = y.replace(/(\r\n|\n|\r)/g,', ');
-        y = y.replace(/\s\s+/g, ' ');
-        y = y.split(/\n\;|,+/g);
-        var x = [];
-        y.forEach(function(e) {
-          e = e.trim()
-          x.push(e);
-        });
-        y = x.filter(Boolean);
-        y = y.join();
-        y = y.trim();
-      }
-      else {
-        y = y.replace(/(\r\n|\n|\r)/gm," ").replace(/\s\s+/g, ' ').toString().trim();
-        y = y.replace(/\s\s+/g, ' ');
+  formatCommaSepList(str) {
+    str = str.replace(/[^\r\n\w\s|,;]/gi, '').trim()
+    if (str) {
+      if (!this.hasALineBreakComma(str)) {
+        let arr = str.replace(/(\r\n|\n|\r)/g, ', ')
+          .replace(/\s\s+/g, ' ')
+          .split(/\n;|,+/g)
+        arr.forEach((e, i) => {
+          arr[i] = e.trim()
+        })
+        arr = arr.filter(Boolean)
+        str = arr.join().trim()
+      } else {
+        str = str.replace(/(\r\n|\n|\r)/gm, ' ').replace(/\s\s+/g, ' ').toString().trim()
+        str = str.replace(/\s\s+/g, ' ')
       }
     }
-    y = y.replace(/\,+/g,', ');
-    return y;
+    str = str.replace(/,+/g, ', ')
+    return str
   }
   
   hasALineBreakComma(str) {
