@@ -23,16 +23,6 @@ var defaultPrintTags = ["corporate", "status", "no_deploy", "secure_domain", "sp
 var spinUpTab = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('spinUpFile');
 var propertySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("**Paste Property Info**");
 
-/*
-  Prints all headers used for every vertical
-  @param vertical Users entry from UI ("mf", "ss", or "sl")
-  @param domainType Users entry from UI ("single", "multi")
-*/
-function printHeaders(clientProp) {
-  const spinUpFileHeaders = getSpinUpFileHeaders();
-  spinUpTab.getRange(1,1,1,spinUpFileHeaders.length).setValues([spinUpFileHeaders]);
-}
-
 function excludedValueMatch(value,clientProp) {
   return (excludedMFSEOValues.includes(value)
     && clientProp.vertical === 'mf' 
@@ -101,21 +91,15 @@ function collectAndFormatResults(propSheetObj, tagToSearch, clientProp, dataValO
   return result
 }
 
-//get Print Ranges
-function printResults(numLocations, searchString, vertical, result) {
-  if (result) {
-    const spinUpFileHeaders = getSpinUpFileHeaders()
-    const printColumnIndex = spinUpFileHeaders.indexOf(searchString) + 1
+function setPostalCodeFormat(numLocations, spinUpFileHeaders) {
+    const printColumnIndex = spinUpFileHeaders.indexOf('postal_code') + 1
     const namePrintRange = spinUpTab.getRange(2, printColumnIndex, numLocations, 1)
-    if (searchString === 'postal_code') {
-      namePrintRange.setNumberFormat('@').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP)
-    }
-    namePrintRange.setValues(result)
-  }
+    namePrintRange.setNumberFormat('@').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP)
+    spinUpTab.getRange(2, 1, numLocations, spinUpFileHeaders.length).setNumberFormat('@').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP)
 }
 
 function testMain() {
-  main("mf","multi","no");
+  main("mf","single","no");
 }
 
 function getClientProp(vert,domType,branding) {
@@ -137,16 +121,20 @@ function main(vertical, domainType, chainBranding) {
     const hasErrors = checkErrors(propSheetObj, clientProperties)
     if (!hasErrors) {
       spinUpTab.clear('A1:BR100')
-      printHeaders(clientProperties)
       propSheetObj.getNewPropertyValues()
       const numLocations = propSheetObj.numOfLoc()
       const dataValObj = new DataVal(clientProperties)
       const spinUpFileHeaders = getSpinUpFileHeaders()
-      spinUpFileHeaders.forEach((header) => {
+      const val = [spinUpFileHeaders]
+      for(let i = 0; i < numLocations; i++) { val.push([]) }
+      spinUpFileHeaders.forEach((header, colIndex) => {
         const result = collectAndFormatResults(propSheetObj, header, clientProperties, dataValObj)
-        printResults(numLocations, header, vertical, result)
+        for(let row = 1; row <= numLocations; row++) {
+          val[row][colIndex] = result ? result[row-1] : ""
+        }
       })
       spinUpTab.getRange(2, 1, numLocations, spinUpFileHeaders.length).setNumberFormat('@').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP)
+      spinUpTab.getRange(1, 1, numLocations + 1, spinUpFileHeaders.length).setValues(val)
     }
   }
 }

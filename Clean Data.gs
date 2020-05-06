@@ -1,10 +1,10 @@
 function testdataval() {
-  var clientProp = getClientProp('mf','multi','yes');
+  var clientProp = getClientProp('mf','single','yes');
   var propSheetObj = new PropertyInfo();
-  var phone = propSheetObj.getRowValByTag('nearby_restaurants');
+  var phone = propSheetObj.getRowValByTag('naked_domain');
   var dataValChecker = new DataVal(clientProp);
   //var emailArry = dataValChecker.runDataVal('email');
-  var customSlugs = dataValChecker.runDataVal('nearby_restaurants',phone);
+  var customSlugs = dataValChecker.runDataVal('naked_domain',phone);
   Logger.log(customSlugs);
 
 }
@@ -31,36 +31,38 @@ class DataVal {
   }
   
   validate(str, tag) {
-    const functionMap = {
-      email: this.emailVal(str),
-      custom_slug: this.generateSlug(str),
-      twitter_username: this.valSocialLinks(str),
-      facebook_username: this.valSocialLinks(str),
-      yelp_username: this.valSocialLinks(str),
-      pinterest_username: this.valSocialLinks(str),
-      instagram_username: this.valSocialLinks(str),
-      youtube_username: this.valSocialLinks(str),
-      linkedin_username: this.valSocialLinks(str),
-      local_phone_number: this.valPhoneNum(str),
-      display_phone_number: this.valPhoneNum(str),
-      naked_domain: this.valDomain(str),
-      floor_plans: this.valFloorPlans(str),
-      state: this.getStateAbb(str),
-      landmark_1_name: this.extractFirstVal(str),
-      nearby_healthcare_1: this.extractFirstVal(str),
-      landmark_1_name: this.extractFirstVal(str),
-      nearby_gasoline: this.extractFirstVal(str),
-      nearby_roadway_1: this.extractFirstVal(str),
-      nearby_roadway_2: this.extractFirstVal(str),
-      community_amenity_1: this.extractFirstVal(str),
-      nearby_restaurants: this.formatCommaSepList(str),
-      nearby_shopping: this.formatCommaSepList(str),
-      nearby_employers: this.formatCommaSepList(str),
-      nearby_schools: this.formatCommaSepList(str),
-      negative_keywords: this.formatCommaSepList(str)
-    }
-    const val = functionMap[tag]
-    return val ? val : str
+    switch(tag) {
+        case "email":
+          str = this.emailVal(str);
+          break;
+        case "custom_slug":
+          str = this.generateSlug(str);
+          break;
+        case "twitter_username": case "facebook_username": case "yelp_username": case "pinterest_username": case "instagram_username": case "youtube_username": case "linkedin_username":
+          str = this.valSocialLinks(str);
+          break;
+        case "local_phone_number": case "display_phone_number":
+          str = this.valPhoneNum(str);
+          break;
+        case "naked_domain":
+          str = this.valDomain(str);
+          break;
+        case "floor_plans":
+          str = this.valFloorPlans(str);
+          break;
+        case "state":
+          str = this.getStateAbb(str);
+          break;
+        case "landmark_1_name": case "nearby_healthcare_1": case "nearby_gasoline": case "nearby_roadway_1": case "nearby_roadway_2": case "community_amenity_1":
+          str = this.extractFirstVal(str);
+          break;
+        case "nearby_restaurants": case "nearby_shopping": case "nearby_employers": case "nearby_schools":
+          str = this.formatCommaSepList(str);
+          break;
+        default:
+          break;
+      }
+    return str
   } 
   
   emailVal(str) {
@@ -117,7 +119,7 @@ class DataVal {
       : '';
   }
   
-  valDomain(str, clientProp) { 
+  valDomain(str) { 
     let domain = "";
     if(this.domainType === "multi") {
       domain = str.replace(/https:\/\/www.|https:\/\/|http:\/\/www.|http:\/\/|www\./gi, "" )
