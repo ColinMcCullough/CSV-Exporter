@@ -11,23 +11,19 @@ function getSpinUpFileHeaders() {
     "floor_plans","community_amenity_1","community_amenity_2","community_amenity_3","care_level_1","care_level_2",
     "care_level_3","care_level_4","care_level_5","care_level_6","nearby_healthcare_1","nearby_roadway_1","nearby_roadway_2",
     "nearby_gasoline","property_feature_1","property_feature_2","property_feature_3","property_feature_4","neighborhood_keywords", 
-    "landmark_keywords","amenity_keywords","class","primary_type","current_website","negative_keywords"
-
+    "landmark_keywords","amenity_keywords","comm_amenity_keywords","class","primary_type","current_website","negative_keywords"
   ];
 } 
 
-var keywordCategories = ['neighborhood_keywords', 'landmark_keywords', 'amenity_keywords']                       
-var excludedMFSEOValues = ["apartment_amenity_1", "community_amenity_1"];
-var excludedSSSLSEOValues = ["", "neighborhood", "landmark_1_name"];
+var keywordCategories = ['neighborhood_keywords', 'landmark_keywords', 'amenity_keywords', 'comm_amenity_keywords']                       
+//var excludedMFSEOValues = ["apartment_amenity_1", "community_amenity_1"];
+var excludedValues = ["", "neighborhood", "landmark_1_name"];
 var defaultPrintTags = ["corporate", "status", "no_deploy", "secure_domain", "spinup_web_theme"];
 var spinUpTab = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('spinUpFile');
 var propertySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("**Paste Property Info**");
 
 function excludedValueMatch(value,clientProp) {
-  return (excludedMFSEOValues.includes(value)
-    && clientProp.vertical === 'mf' 
-    || excludedSSSLSEOValues.includes(value)
-    || keywordCategories.includes(value))
+  return excludedValues.includes(value) || keywordCategories.includes(value)
 }
 
 /*
@@ -55,26 +51,28 @@ function getRowValues(propSheetObj, searchString, clientProp, dataValObj) {
   const tagIndex = propSheetObj.getRowIndexByTag(searchString) // Row Number - 1
   let rowValues = null
   const stringTest = (function() {
-    return searchString === 'custom_slug' ? getCustomSlugConfig()[clientProp.domainType][clientProp.chainBranding] : searchString
+    return searchString === 'custom_slug' ? getCustomSlugConfig()[clientProp.chainBranding] : searchString
   }())
 
   if (tagIndex !== -1 || (searchString === 'custom_slug' && stringTest)) {
     const dataByTag = propSheetObj.getRowValByTag(stringTest)
     rowValues = dataValObj.runDataVal(searchString, dataByTag)
+  } else if(searchString === 'internal_branded_name') {
+    const nameArr = propSheetObj.getRowValByTag('name')
+    const addressArr = propSheetObj.getRowValByTag('street_address_1')
+    const cityArr = propSheetObj.getRowValByTag('city')
+    rowValues = nameArr.map((name, index) => {
+      return `${name} - ${addressArr[index]} - ${cityArr[index]}`
+    })
+    rowValues = [rowValues]
   }
   return rowValues
 }
 
 function getCustomSlugConfig() {
   return {
-    'multi': {
-      'yes': null,
-      'no': null
-    },
-    'single': {
-      'yes': 'street_address_1',
-      'no': 'name'
-    }
+    'yes': 'street_address_1',
+    'no': 'name'
   }
 }
 

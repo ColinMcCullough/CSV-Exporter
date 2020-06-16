@@ -95,7 +95,7 @@ function getKeywords(propSheetObj, tagToSearch, clientProp) {
       })
     })
   } else { // amenity_keywords
-    row = clientProp.vertical === 'mf' ? getAmentiesArray(propSheetObj, dataCleaner) : null
+    row = clientProp.vertical === 'mf' ? getAmentiesArray(propSheetObj, dataCleaner, tagToSearch) : null
   }
   row = row ? [row] : null
   return row
@@ -110,20 +110,21 @@ function getLandmarkTagArr(vertical) {
   return obj[vertical]
 }
 
-function getAmentiesArray(propSheetObj, dataCleaner) {
+function getAmentiesArray(propSheetObj, dataCleaner, tagToSearch) {
   var row = []
-  var apartmentAmenitiesArry = getAmentiesData(propSheetObj,"apartment_amenity");
-  var communityAmenitiesArry = getAmentiesData(propSheetObj,"community_amenity");
-  var otherAmenities = getOtherAmenities(propSheetObj, dataCleaner);
-  apartmentAmenitiesArry.forEach((item, i) => {
-    row[i] = getData(apartmentAmenitiesArry[i],communityAmenitiesArry[i], otherAmenities[i])
+  var amenitiesArry = tagToSearch === 'amenity_keywords'
+    ? getAmentiesData(propSheetObj,"apartment_amenity")
+    : getAmentiesData(propSheetObj,"community_amenity")
+  var otherAmenities = getOtherAmenities(propSheetObj, dataCleaner, tagToSearch);
+  amenitiesArry.forEach((item, i) => {
+    row[i] = getData(amenitiesArry[i], otherAmenities[i])
   })
   return row
 }
 
-function getData(str, str1, str2) {
+function getData(str, str2) {
   let val = ''
-  const arr = [str, str1, str2]
+  const arr = [str, str2]
   arr.forEach((str) => {
     val = val && str
       ? `${val}, ${str}`
@@ -132,9 +133,10 @@ function getData(str, str1, str2) {
   return val
 }
 
-function getOtherAmenities(propSheetObj, dataCleaner) {
-  const amenTags = ['apartment_amenity', 'apartment_amenity_1', 'apartment_amenity_2', 'apartment_amenity_3',
-    'other_apartment_amenities', 'community_amenity', 'community_amenity_1', 'community_amenity_2', 'community_amenity_3', 'other_community_amenities']
+function getOtherAmenities(propSheetObj, dataCleaner, tagToSearch) {
+  const amenTags = tagToSearch === 'amenity_keywords'
+    ? ['apartment_amenity', 'apartment_amenity_1', 'apartment_amenity_2', 'apartment_amenity_3','other_apartment_amenities']
+    :  ['community_amenity', 'community_amenity_1', 'community_amenity_2', 'community_amenity_3', 'other_community_amenities']
   const row = []
   amenTags.forEach(function(tag) {
     const amenityRow = propSheetObj.getRowValByTag(tag)

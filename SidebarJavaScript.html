@@ -23,9 +23,9 @@
 
   function spinUpCSV() {
     this.disabled = true;
-    var vertical = $('#select-vertical').val();
-    var domainStrat = $('#select-domain-strat').val();
-    var chainBrand = $('#select-chain').val();  
+    const vertical = $('#select-vertical').val();
+    const domainStrat = $('#select-domain-strat').val();
+    const chainBrand = $('#select-chain').val();  
     google.script.run
       .withSuccessHandler(success)
       .withFailureHandler(failure)

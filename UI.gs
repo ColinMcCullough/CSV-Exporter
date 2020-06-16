@@ -3,7 +3,7 @@ var ui = SpreadsheetApp.getUi();
 
 function getUI() { return SpreadsheetApp.getUi() }
 
-function onOpen() {
+function onOpen(e) {
   SpreadsheetApp.getUi()
       .createAddonMenu()
       .addItem('Open App', 'showSidebar')
@@ -18,4 +18,8 @@ function showSidebar() {
   SpreadsheetApp.getUi().showSidebar(ui);
 }
 
+//Adds menu items under the add on menu when installed
+function onInstall(e) {
+  onOpen(e);
+}
 
