@@ -53,7 +53,9 @@ class DataVal {
         case "state":
           str = this.getStateAbb(str);
           break;
-        case "landmark_1_name": case "nearby_healthcare_1": case "nearby_gasoline": case "nearby_roadway_1": case "nearby_roadway_2": case "community_amenity_1":
+        case "landmark_1_name": case "nearby_healthcare_1": case "nearby_gasoline": case "nearby_roadway_1": case "nearby_roadway_2": case "community_amenity_1": case "community_amenity_2": case "community_amenity_3": case "apartment_amenity_1": case "apartment_amenity_2": case "apartment_amenity_3":
+        "apartment_amenity_1","apartment_amenity_2",
+    "apartment_amenity_3"
           str = this.extractFirstVal(str);
           break;
         case "nearby_restaurants": case "nearby_shopping": case "nearby_employers": case "nearby_schools":
