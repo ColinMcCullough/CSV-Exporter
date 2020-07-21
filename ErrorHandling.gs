@@ -1,20 +1,12 @@
+
 /*
  Checks for errors in the property info tab that need to be fixed prior to spinning up csv
 */
 function checkErrors(propSheetObj,clientProperties) {
-  var errorObj = new PropertySheetErrors(clientProperties);
-  var errors = false
-  var tierOneErrors = errorObj.checkTierOneErrors(propSheetObj,clientProperties);
-  var tierTwoErrors = errorObj.checkTierTwoErrors(propSheetObj,clientProperties);
-  if(tierOneErrors) {
-    errors = true
-  }
-  else if(tierTwoErrors) {
-    errors = true
-  }
+  const errorObj = new ErrorValidator(clientProperties);
+  const errors = errorObj.checkErrors(propSheetObj);
   return errors
 }
-
 
 /*
  *Checks for the number of blanks in an array list
@@ -41,118 +33,125 @@ function howManyRepeated(str){
   return str ? str.length : 0
 }
 
-function valid(vertVal, domainStrat, chainBran) {
-  let val = true
-  const arryVal = [vertVal, domainStrat, chainBran]
-  for (let i = 0; i < arryVal.length; i++) {
-    if (arryVal[i] === 'Select' || !arryVal[i]) {
-      getUI().alert('Please Select An Option from All Drop Downs')
-      val = false
-      break
-    }
-  }
-  return val
+function valid({ vertical, domainType, chainBranding }) {
+  const arry = [vertical, domainType, chainBranding]
+  const isValid = arry.every((currentValue) => {
+    return currentValue !== 'Select' && currentValue
+  })
+  return isValid
 }
 /*
   This class offers methods to check property info sheet errors to ensure an appropriate state
 */
-class PropertySheetErrors {
+class ErrorValidator {
   constructor(clientProperties) {
     this.clientProperties = clientProperties
     this.tags = {
+      corp: ['naked_domain', 'name', 'street_address_1', 'city', 'state', 'postal_code', 'country', 'display_phone_number'],
       standard: ['current_website', 'naked_domain', 'name', 'street_address_1', 'city', 'state', 'postal_code', 'country', 'local_phone_number', 'display_phone_number', 'email', 'negative_keywords'],
       mfTags: ['current_website', 'naked_domain', 'name', 'street_address_1', 'city', 'state', 'postal_code', 'country', 'local_phone_number', 'display_phone_number', 'email', 'property_feature_1', 'primary_type', 'floor_plans', 'negative_keywords']
     }
     this.ui = getUI()
   }
-  checkTierOneErrors(propSheetObj) {
-    const propTagArry = propSheetObj.propertyTagsArry()
-    if (this.checkMissingTags(this.clientProperties, propTagArry) || this.checkMissingNames(propTagArry, propSheetObj) || this.checkMissingAddress(propSheetObj)) {
-      return true
-    }
-  }
-
-  checkTierTwoErrors(propSheetObj) {
+  
+  checkErrors(propSheetObj) {
+    let errors = false;
     let alerts = []
     const propTagArry = propSheetObj.propertyTagsArry()
+    const missingTags = this.checkMissingTags(this.clientProperties, propTagArry)
+    const missingNames = this.checkMissingNames(propTagArry, propSheetObj)
+    const missingAddresses = this.checkMissingAddress(propSheetObj)
     const missingDomains = this.checkMissingDomains(this.clientProperties, propTagArry, propSheetObj)
     const phoneIssues = this.checkPhoneIssues(propTagArry, propSheetObj)
     const floorPlanIssues = this.checkFloorPlans(propTagArry, propSheetObj)
-    alerts.push(missingDomains, phoneIssues, floorPlanIssues)
+    alerts.push(missingTags, missingNames, missingAddresses, missingDomains, phoneIssues, floorPlanIssues)
     alerts = alerts.filter(Boolean)
     if (alerts.length > 0) {
       this.ui.alert(alerts.join('\n'))
-      return true
+      errors = true
     }
+    return errors
   }
-
+  
   checkMissingTags(clientProperties, propTagArry) {
-    const missingTags = (clientProperties.vertical === 'mf') ? this.tags.mfTags.diff(propTagArry) : this.tags.standard.diff(propTagArry)
-    if (missingTags.length > 0) {
-      this.ui.alert('Error: \nYou are missing the following required tags in the workbook:\nMissing Tags: ' + missingTags + '\nCheck to ensure the workbook is up to date')
-      return true
+    let alert = '';
+    let missingTags;
+    if(clientProperties.corp) {
+      missingTags = this.tags.corp.diff(propTagArry)
+    } else if(clientProperties.vertical === 'mf') {
+      missingTags = this.tags.mfTags.diff(propTagArry)
+    } else {
+      missingTags = this.tags.standard.diff(propTagArry)
     }
+    if (missingTags.length > 0) { 
+      alert = 'Error: \nYou are missing the following required tags in the workbook:\nMissing Tags: ' + missingTags + '\nCheck to ensure the workbook is up to date'
+     }
+    return alert;
   }
 
   checkMissingNames(propTagArry, propSheetObj) {
+    let alert = ''
     const nameRowNum = propTagArry.indexOf('name') + 1
     const nameRangeValues = propSheetObj.getRowValByTag('name')
     const numNameBlanks = numOfBlanks(nameRangeValues, nameRangeValues.length)
     if (numNameBlanks > 0) {
-      this.ui.alert('Error: \nYou either have values in a property info tab past the last locations column or are missing brand names in row ' + nameRowNum +
-               '\nAdd brand names to all locations in row ' + nameRowNum + ' and clear all columns past the last location column in use.')
-      return true
+      alert = 'Error: \nYou either have values in a property info tab past the last locations column or are missing brand names in row ' + nameRowNum +
+               '\nAdd brand names to all locations in row ' + nameRowNum + ' and clear all columns past the last location column in use.'
     }
+    return alert
   }
 
   checkMissingAddress(propSheetObj) {
+    let alert = ''
     const addressIndexes = propSheetObj.getLocAddressProp()
     const keys = ['street_address_1', 'city', 'state', 'postal_code']
     for (let i = 0; i < keys.length; i++) {
       const getRowVal = propSheetObj.getRowValByTag(keys[i])
       const numBlank = numOfBlanks(getRowVal, getRowVal.length)
-      //const stateErr = 
       if (numBlank > 0) {
-        this.ui.alert('Error: All locations address, city, state and zip cells must be filled out in the projects workbook. \n' +
-               '\nAddress Rows: ' + addressIndexes.streetAddIndx + ' - ' + addressIndexes.postalCodeIndx)
-        return true
+        alert = 'Error: All locations address, city, state and zip cells must be filled out in the projects workbook. \n' +
+               '\nAddress Rows: ' + addressIndexes.streetAddIndx + ' - ' + addressIndexes.postalCodeIndx
       }
     }
+    return alert
   }
 
   checkMissingDomains(clientProperties, propTagArry, propSheetObj) {
+    let alert = '';
     if (clientProperties.domainType == 'multi') {
       const domainIndex = propTagArry.indexOf('naked_domain') + 1
       const rowRangeValues = propSheetObj.getRowValByTag('naked_domain')
       const domainArrylen = propSheetObj.numOfLoc()
       const numDomainBlanks = numOfBlanks(rowRangeValues, domainArrylen)
       if (numDomainBlanks > 0) {
-        const missingDomain = 'Error: \nAll multi domain locations need their domain field filled out.' + '\nAdd domains to all locations in row ' + domainIndex
-        return missingDomain
+        alert = 'Error: \nAll multi domain locations need their domain field filled out.' + '\nAdd domains to all locations in row ' + domainIndex
       }
     }
+    return alert
   }
 
   checkPhoneIssues(propTagArry, propSheetObj) {
+    let alert = '';
     const newPhoneArray = this.copyLocalToDefaultPhone(propSheetObj) // copies local number to display phone number field if display phone number is blank
     const numPhoneBlanks = numOfBlanks(newPhoneArray, newPhoneArray.length)
     if (numPhoneBlanks > 0) {
       const phoneRowNum = propTagArry.indexOf('display_phone_number') + 1
-      const missingDefaultPhoneNum = 'Error: \nYour missing phone number values in row ' + phoneRowNum + '. Please enter the locations city area code followed by 555-5555(EX: 541-555-5555) in row ' + phoneRowNum
-      return missingDefaultPhoneNum
+      alert = 'Error: \nYour missing phone number values in row ' + phoneRowNum + '. Please enter the locations city area code followed by 555-5555(EX: 541-555-5555) in row ' + phoneRowNum
     }
+    return alert
   }
 
   checkFloorPlans(propTagArry, propSheetObj) {
-    if (propTagArry.includes('floor_plans')) {
+    let alert = '';
+    if (propTagArry.includes('floor_plans') && !this.clientProperties.corp) {
       const floorPlansIndex = propTagArry.indexOf('floor_plans') + 1
       const rowRangeValues = propSheetObj.getRowValByTag('floor_plans')
       const hasBathroomData = this.checkForBathValues(rowRangeValues, rowRangeValues.length)
       if (hasBathroomData == true) {
-        const bathroomValuesError = 'Error: \nLooks like some floor plans cells are using bathroom numbers' + '\nDelete all bathroom numbers and references to bathroom from floor plans cells in row ' + floorPlansIndex
-        return bathroomValuesError
+        alert = 'Error: \nLooks like some floor plans cells are using bathroom numbers' + '\nDelete all bathroom numbers and references to bathroom from floor plans cells in row ' + floorPlansIndex
       }
     }
+    return alert
   }
 
   checkForBathValues(floorPlansValues, arrylen) {

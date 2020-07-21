@@ -227,15 +227,21 @@ function cleanFloorPlans(str) {
 
 
 //this function is used in the searchRowIndexArray to print out default values in columns where the values are static
-function printDefaultValues(numLocations,search, domainType) { 
+function printDefaultValues(numLocations,search, domainType, corp) { 
   const spinUpFileHeaders = getSpinUpFileHeaders()
   return search === 'secure_domain' && domainType === 'single' 
     ? fillArray('', numLocations)
-    : fillArray(getDefaultTagValue()[search], numLocations)
+    : fillArray(getDefaultTagValue(corp)[search], numLocations)
 }
 
-function getDefaultTagValue() {
-  return {
+function getDefaultTagValue(corp) {
+  return corp ? {
+    'corporate': 'true',
+    'status': 'Pending',
+    'no_deploy': 'false',
+    'spinup_web_theme': 'default', 
+    'secure_domain': 'true' 
+  } : {
     'corporate': 'false',
     'status': 'Pending',
     'no_deploy': 'false',

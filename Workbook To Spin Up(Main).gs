@@ -35,7 +35,7 @@ function collectTagResults(propSheetObj, tagToSearch, clientProp,dataValObj)  {
   let rowValues = null;
   //sets default value if searchString matches defaultPrintTags array value
   if(defaultPrintTags.includes(tagToSearch)) { //default values
-    rowValues = printDefaultValues(propSheetObj.numOfLoc(), tagToSearch, clientProp.domainType);    
+    rowValues = printDefaultValues(propSheetObj.numOfLoc(), tagToSearch, clientProp.domainType, clientProp.corp);    
   }
   else if(!excludedValueMatch(tagToSearch,clientProp)) { 
     rowValues = getRowValues(propSheetObj, tagToSearch, clientProp,dataValObj);
@@ -97,9 +97,14 @@ function setPostalCodeFormat(numLocations, spinUpFileHeaders) {
 }
 
 function testMain() {
-  main("mf","single","no");
+  main({
+    domainType:'multi',
+    chainBranding:'no',
+    corp:false,
+    vertical:'mf'});
 }
 
+/*
 function getClientProp(vert,domType,branding) {
   return {
       vertical: vert,
@@ -107,16 +112,17 @@ function getClientProp(vert,domType,branding) {
       chainBranding: branding
   }
 }
+*/
 
 /*
 //This function runs the workbook >> Csv functionality
 */
-function main(vertical, domainType, chainBranding) {
-  const isValid = valid(vertical, domainType, chainBranding)
+function main(clientProperties) {
+  const isValid = valid(clientProperties)
   if (isValid) {
-    const clientProperties = getClientProp(vertical, domainType, chainBranding)
     const propSheetObj = new PropertyInfo()
     const hasErrors = checkErrors(propSheetObj, clientProperties)
+    // corp data validation complete
     if (!hasErrors) {
       spinUpTab.clear('A1:BR100')
       propSheetObj.getNewPropertyValues()

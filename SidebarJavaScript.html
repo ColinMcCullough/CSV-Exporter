@@ -23,14 +23,22 @@
 
   function spinUpCSV() {
     this.disabled = true;
-    const vertical = $('#select-vertical').val();
-    const domainStrat = $('#select-domain-strat').val();
-    const chainBrand = $('#select-chain').val();  
+    //const vertical = $('#select-vertical').val();
+    //const domainStrat = $('#select-domain-strat').val();
+    //const chainBrand = $('#select-chain').val();
+    //const corp = $('#corp-val').val();
+    const data = {
+      vertical: $('#select-vertical').val(),
+      domainType: $('#select-domain-strat').val(),
+      chainBranding: $('#select-chain').val(),
+      corp: $('#corp-val')[0].checked
+    }
     google.script.run
       .withSuccessHandler(success)
       .withFailureHandler(failure)
       .withUserObject(this)
-      .main(vertical,domainStrat,chainBrand);    
+      .main(data)
+      //.main(vertical,domainStrat,chainBrand);    
   }
   
   /**
@@ -57,5 +65,8 @@ $("select[id='select-domain-strat']").change( function() {
     $("select[id='select-chain']").removeAttr("disabled");
 }); 
 
+$("select[id='select-chain']").change( function() {
+    $("#sidebar-run-main").removeAttr("disabled");
+}); 
     
 </script>
