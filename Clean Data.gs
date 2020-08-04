@@ -17,6 +17,7 @@ class DataVal {
     this.vertical = clientProp.vertical
     this.domainType = clientProp.domainType
     this.chainBranding = clientProp.chainBranding
+    this.corp = clientProp.corp
   }
   runDataVal(tag, dataByTag) {
     this.dataByTag = dataByTag
@@ -77,12 +78,17 @@ class DataVal {
   }
   
   generateSlug(str) {
-    if (this.chainBranding === 'yes') { // address passed in if chain branding and will be formatted
+    Logger.log(this.corp)
+    if(this.corp) {
+      str = 1
+    } else {
+      if (this.chainBranding === 'yes') { // address passed in if chain branding and will be formatted
       str = str.toString().replace(/[^A-Za-z0-9|" "]/g, '') // replaces all non numeric of alphabetic characters
         .substr(str.indexOf(' ') + 1) // everything after address numbers
         .toLowerCase().trim().replace(/\s\s+|\s/g, '-')
-    } else { // this will pass in the brand name to clean for a slug (not chain branded)
-      str = str.toString().toLowerCase().trim().replace(/\s\s+|\s/g, '-')
+      } else { // this will pass in the brand name to clean for a slug (not chain branded)
+        str = str.toString().toLowerCase().trim().replace(/\s\s+|\s/g, '-')
+      }
     }
     return str
   }

@@ -59,16 +59,21 @@ class ErrorValidator {
     let alerts = []
     const propTagArry = propSheetObj.propertyTagsArry()
     const missingTags = this.checkMissingTags(this.clientProperties, propTagArry)
-    const missingNames = this.checkMissingNames(propTagArry, propSheetObj)
-    const missingAddresses = this.checkMissingAddress(propSheetObj)
-    const missingDomains = this.checkMissingDomains(this.clientProperties, propTagArry, propSheetObj)
-    const phoneIssues = this.checkPhoneIssues(propTagArry, propSheetObj)
-    const floorPlanIssues = this.checkFloorPlans(propTagArry, propSheetObj)
-    alerts.push(missingTags, missingNames, missingAddresses, missingDomains, phoneIssues, floorPlanIssues)
-    alerts = alerts.filter(Boolean)
-    if (alerts.length > 0) {
-      this.ui.alert(alerts.join('\n'))
+    if(missingTags) {
+      this.ui.alert(missingTags)
       errors = true
+    } else {
+      const missingNames = this.checkMissingNames(propTagArry, propSheetObj)
+      const missingAddresses = this.checkMissingAddress(propSheetObj)
+      const missingDomains = this.checkMissingDomains(this.clientProperties, propTagArry, propSheetObj)
+      const phoneIssues = this.checkPhoneIssues(propTagArry, propSheetObj)
+      const floorPlanIssues = this.checkFloorPlans(propTagArry, propSheetObj)
+      alerts.push(missingTags, missingNames, missingAddresses, missingDomains, phoneIssues, floorPlanIssues)
+      alerts = alerts.filter(Boolean)
+      if (alerts.length > 0) {
+        this.ui.alert(alerts.join('\n'))
+        errors = true
+      }
     }
     return errors
   }
