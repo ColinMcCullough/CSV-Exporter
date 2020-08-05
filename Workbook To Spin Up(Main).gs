@@ -98,9 +98,9 @@ function setPostalCodeFormat(numLocations, spinUpFileHeaders) {
 
 function testMain() {
   main({
-    domainType:'multi',
-    chainBranding:'no',
-    corp:false,
+    domainType:'single',
+    chainBranding:'yes',
+    corp:true,
     vertical:'mf'});
 }
 

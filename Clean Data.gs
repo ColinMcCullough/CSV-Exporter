@@ -78,7 +78,6 @@ class DataVal {
   }
   
   generateSlug(str) {
-    Logger.log(this.corp)
     if(this.corp) {
       str = 1
     } else {
@@ -121,7 +120,9 @@ class DataVal {
   }
   
   valPhoneNum(str) {
-    str = str.toString().replace(/[^0-9\.]+/g, '').replace(/\./g, '').trim();
+    str = str
+      ? str.toString().replace(/[^0-9\.]+/g, '').replace(/\./g, '').trim()
+      : ''
     return str != "" && str.length === 10
       ? `${str.substr(0, 3)}-${str.substr(3, 3)}-${str.substr(6, 4)}`
       : '';
