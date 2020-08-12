@@ -11,7 +11,7 @@ function getSpinUpFileHeaders() {
     "floor_plans","community_amenity_1","community_amenity_2","community_amenity_3","care_level_1","care_level_2",
     "care_level_3","care_level_4","care_level_5","care_level_6","nearby_healthcare_1","nearby_roadway_1","nearby_roadway_2",
     "nearby_gasoline","property_feature_1","property_feature_2","property_feature_3","property_feature_4","neighborhood_keywords", 
-    "landmark_keywords","amenity_keywords","comm_amenity_keywords","class","primary_type","current_website","negative_keywords"
+    "landmark_keywords","amenity_keywords","comm_amenity_keywords","class","primary_type","current_website","negative_keywords", "service_level"
   ];
 } 
 
